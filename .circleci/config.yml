@@ -9,12 +9,17 @@ jobs:
       - run:
           name: change into the frontend dir
           command: cd frontend
+      - restore_cache:
+          keys: [frontend-build]
       - run:
           name: Install dependancies
           command: npm install
       - run:
           name: Build frontend
-          command: npm build
+          command: npm run build
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-build
   build-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -23,12 +28,17 @@ jobs:
       - run:
           name: change into the backend dir
           command: cd backend
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Install dependancies
           command: npm install
       - run:
           name: Build frontend
-          command: npm build
+          command: npm run build
+      - save_cache:
+          paths: [backend/node_modules]
+          key: backend-build
 
 workflows:
   defaults:
