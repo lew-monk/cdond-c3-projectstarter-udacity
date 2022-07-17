@@ -43,5 +43,5 @@ jobs:
 workflows:
   defaults:
     jobs:
-      - build-frontend
+      # - build-frontend
       - build-backend
