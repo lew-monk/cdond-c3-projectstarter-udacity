@@ -10,7 +10,9 @@ jobs:
           keys: [frontend-build]
       - run:
           name: change into the frontend dir
-          command: cd frontend \ && npm install \ && npm run build
+          command: cd frontend \
+            npm install \
+            npm run build
       - restore_cache:
           keys: [frontend-build]
 
@@ -23,7 +25,9 @@ jobs:
           keys: [backend-build]
       - run:
           name: change into the backend dir
-          command: cd frontend \ && npm install \ && npm run build
+          command: cd frontend \
+            npm install \
+            npm run build
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
