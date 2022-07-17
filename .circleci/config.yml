@@ -10,8 +10,8 @@ jobs:
           keys: [frontend-build]
       - run:
           name: change into the frontend dir
-          command: cd frontend \
-            npm install \
+          command: cd frontend &&
+            npm install &&
             npm run build
       - restore_cache:
           keys: [frontend-build]
