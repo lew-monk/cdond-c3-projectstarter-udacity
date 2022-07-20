@@ -138,7 +138,7 @@ jobs:
               --query 'Reservations[*].Instances[*].[InstanceId,PublicIpAddress]' \
               --output text \
               --filters "Name=tag:project,Values=udapeople" \
-              > /tmp/ansible/inventory.txt
+              > inventory.txt
       - persist_to_workspace:
           root: /tmp/ansible
           paths:
