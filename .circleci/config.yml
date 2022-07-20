@@ -112,25 +112,25 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - run:
-          name: Install tar and gzip
-          command: yum install -y tar gzip
-      - run:
-          name: Ensure backend Infra Exists
-          command: |
-            aws cloudformation deploy \
-            --template-file .circleci/files/backend.yml \
-            --stack-name "udapeople-bakcend-${CIRCLE_WORKFLOW_ID:0:7}" \
-            --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
-            --tags project=udapeople-backend
-      - run:
-          name: Ensure frontend Infra Exists
-          command: |
-            aws cloudformation deploy \
-            --template-file .circleci/files/frontend.yml \
-            --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
-            --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
-            --tags project=udapeople-frontend
+      # - run:
+      #     name: Install tar and gzip
+      #     command: yum install -y tar gzip
+      # - run:
+      #     name: Ensure backend Infra Exists
+      #     command: |
+      #       aws cloudformation deploy \
+      #       --template-file .circleci/files/backend.yml \
+      #       --stack-name "udapeople-bakcend-${CIRCLE_WORKFLOW_ID:0:7}" \
+      #       --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
+      #       --tags project=udapeople-backend
+      # - run:
+      #     name: Ensure frontend Infra Exists
+      #     command: |
+      #       aws cloudformation deploy \
+      #       --template-file .circleci/files/frontend.yml \
+      #       --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+      #       --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
+      #       --tags project=udapeople-frontend
       - run:
           name: Add back-end ip to ansible inventory
           command: |
@@ -138,14 +138,14 @@ jobs:
               --query 'Reservations[*].Instances[*].[InstanceId,PublicIpAddress]' \
               --output text \
               --filters "Name=tag:project,Values=udapeople" \
-              > .circleci/ansible/inventory.txt
+              > cdond-c3-projectstarter-udacity/.circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
-            - .circleci/ansible/inventory.txt
+            - cdond-c3-projectstarter-udacity/.circleci/ansible/inventory.txt
 
-      - destroy-environment:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - destroy-environment:
+      #     id: ${CIRCLE_WORKFLOW_ID:0:7}
 
 workflows:
   defaults:
