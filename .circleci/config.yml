@@ -146,9 +146,7 @@ jobs:
             - project/.circleci/ansible/inventory.txt
 
       - destroy-environment:
-          parameters:
-            id: ${CIRCLE_WORKFLOW_ID:0:7}
-            when: "on_fail"
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
 
 workflows:
   defaults:
