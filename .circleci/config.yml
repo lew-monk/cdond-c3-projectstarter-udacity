@@ -14,8 +14,8 @@ commands:
       - run:
           name: "Destroy environment"
           command:
-            aws cloudformation --delete-stack --stack-name "udapeople-backend-<<parameters.id>>" \
-            && aws cloudformation --delete-stack --stack-name "udapeople-frontend-<<parameters.id>>"
+            aws cloudformation delete-stack --stack-name "udapeople-backend-<<parameters.id>>" \
+            && aws cloudformation delete-stack --stack-name "udapeople-frontend-<<parameters.id>>"
           when: on_fail
 
 jobs:
@@ -117,7 +117,8 @@ jobs:
           command: yum install -y tar gzip
       - run:
           name: Ensure backend Infra Exists
-          command: aws cloudformation deploy \
+          command: |
+            aws cloudformation deploy \
             --template-file .circle/files/backend.yml \
             --stack-name "udapeople-bakcend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
@@ -125,7 +126,8 @@ jobs:
             exit 1
       - run:
           name: Ensure frontend Infra Exists
-          command: aws cloudformation deploy \
+          command: |
+            aws cloudformation deploy \
             --template-file .circle/files/frontend.yml \
             --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
