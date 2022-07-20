@@ -115,22 +115,22 @@ jobs:
       - run:
           name: Install tar and gzip
           command: yum install -y tar gzip
-      # - run:
-      #     name: Ensure backend Infra Exists
-      #     command: |
-      #       aws cloudformation deploy \
-      #       --template-file .circleci/files/backend.yml \
-      #       --stack-name "udapeople-bakcend-${CIRCLE_WORKFLOW_ID:0:7}" \
-      #       --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
-      #       --tags project=udapeople-backend
-      # - run:
-      #     name: Ensure frontend Infra Exists
-      #     command: |
-      #       aws cloudformation deploy \
-      #       --template-file .circleci/files/frontend.yml \
-      #       --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
-      #       --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
-      #       --tags project=udapeople-frontend
+      - run:
+          name: Ensure backend Infra Exists
+          command: |
+            aws cloudformation deploy \
+            --template-file .circleci/files/backend.yml \
+            --stack-name "udapeople-bakcend-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
+            --tags project=udapeople-backend
+      - run:
+          name: Ensure frontend Infra Exists
+          command: |
+            aws cloudformation deploy \
+            --template-file .circleci/files/frontend.yml \
+            --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
+            --tags project=udapeople-frontend
       - run:
           name: Add back-end ip to ansible inventory
           command: |
@@ -143,9 +143,16 @@ jobs:
           root: .
           paths:
             - inventory.txt
+      - destroy-environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
 
-      # - destroy-environment:
-      #     id: ${CIRCLE_WORKFLOW_ID:0:7}
+  configure-infrastructure:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - run:
+          command: |
+            yum install -y tar gzip ansible && amazon-linux-extras install ansible2 -y
 
 workflows:
   defaults:
@@ -164,4 +171,5 @@ workflows:
       # - scan-backend:
       #     requires:
       #       - build-backend
-      - deploy-infrastructure
+      # - deploy-infrastructure
+      - configure-infrastructure
