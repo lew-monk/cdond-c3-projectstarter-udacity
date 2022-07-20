@@ -140,7 +140,7 @@ jobs:
               --filters "Name=tag:project,Values=udapeople" \
               > inventory.txt
       - persist_to_workspace:
-          root: /tmp/ansible
+          root: .
           paths:
             - inventory.txt
 
