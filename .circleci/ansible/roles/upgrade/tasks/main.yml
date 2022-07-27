@@ -12,4 +12,4 @@
 
 - name: Install pm2
   become: true
-  npm: name=pm2 state=present global=true
+  npm: name=pm2 state=present global=yes
