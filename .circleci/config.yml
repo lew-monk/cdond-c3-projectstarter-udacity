@@ -131,6 +131,7 @@ jobs:
             --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
             --tags project=udapeople-frontend
+      - run: mkdir -p workspace
       - run:
           name: Add back-end ip to ansible inventory
           command: |
@@ -140,7 +141,7 @@ jobs:
               --filters "Name=tag:project,Values=udapeople-backend1" \
               >> .circleci/ansible/inventory.txt
       - persist_to_workspace:
-          root: .
+          root: .circleci/ansible
           paths:
             - .circleci/ansible/inventory.txt
       - destroy-environment:
@@ -158,14 +159,14 @@ jobs:
           command: |
             yum install -y tar gzip ansible && amazon-linux-extras install ansible2 -y
       - attach_workspace:
-          at: .
+          at: .circleci/ansible
       - run:
           name: "Echo contents of inventory.txt"
           command: cat .circleci/ansible/inventory.txt
       - run:
           name: Run Playbook
           command: |
-            ansible-playbook -i inventory.txt .circleci/ansible/configure-server.yml
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
 
 workflows:
   defaults:
