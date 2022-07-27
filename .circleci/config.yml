@@ -122,7 +122,7 @@ jobs:
             --template-file .circleci/files/backend.yml \
             --stack-name "udapeople-bakcend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
-            --tags project=udapeople-backend1
+            --tags project=udapeople-backend-test
       - run:
           name: Ensure frontend Infra Exists
           command: |
@@ -138,8 +138,8 @@ jobs:
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].[PublicIpAddress]' \
               --output text \
-              --filters "Name=tag:project,Values=udapeople-backend1" \
-              >> .circleci/ansible/inventory.txt
+              --filters "Name=tag:project,Values=udapeople-backend-test" \
+              > .circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: .circleci/ansible
           paths:
@@ -154,7 +154,10 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints:
-            - "97:d8:ce:2d:1c:5b:d8:a9:83:c7:72:9b:30:74:07:76"
+            [
+              "92:9e:dc:b4:96:80:5b:fe:ab:16:a6:04:38:ac:a5:39",
+              "97:d8:ce:2d:1c:5b:d8:a9:83:c7:72:9b:30:74:07:76",
+            ]
       - run:
           command: |
             yum install -y tar gzip ansible && amazon-linux-extras install ansible2 -y
