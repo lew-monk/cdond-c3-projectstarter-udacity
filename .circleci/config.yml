@@ -161,7 +161,7 @@ jobs:
           at: .
       - run:
           name: "Echo contents of inventory.txt"
-          command: cat inventory.txt
+          command: cat .circleci/ansible/inventory.txt
       - run:
           name: Run Playbook
           command: |
