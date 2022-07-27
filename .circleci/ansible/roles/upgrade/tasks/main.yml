@@ -8,6 +8,7 @@
 
 - name: Install nodejs
   become: true
+  run: curl -fsSL https://deb.nodesource.com/setup_16.x |sudo -E bash
   apt: name=nodejs state=present
 
 - name: Install npm
