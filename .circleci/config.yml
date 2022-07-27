@@ -153,8 +153,7 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints:
-            ["5e:0f:72:70:73:8b:7e:93:40:ef:13:2d:fe:18:85:3f:42:60:7f:28"]
+          fingerprints: ["f6:4a:e4:4b:14:e4:82:cc:c8:a9:cd:37:96:63:d2:24"]
       - run:
           command: |
             yum install -y tar gzip ansible && amazon-linux-extras install ansible2 -y
