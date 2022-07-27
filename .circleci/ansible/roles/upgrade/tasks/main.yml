@@ -1,0 +1,19 @@
+- name: Update all Packages
+  become: true
+  yum: name=* state=latest
+
+- name: Install python
+  become: true
+  yum: name=python3 state=present
+
+- name: Install nodejs
+  become: true
+  yum: name=nodejs state=present
+
+- name: Install npm
+  become: true
+  yum: name=npm state=present
+
+- name: Install pm2
+  become: true
+  npm: name=pm2 state=present
