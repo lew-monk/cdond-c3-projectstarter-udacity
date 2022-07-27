@@ -154,11 +154,11 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - "97:d8:ce:2d:1c:5b:d8:a9:83:c7:72:9b:30:74:07:76"
-      - attach_workspace:
-          at: .
       - run:
           command: |
             yum install -y tar gzip ansible && amazon-linux-extras install ansible2 -y
+      - attach_workspace:
+          at: .
       - run:
           name: Run Playbook
           command: |
