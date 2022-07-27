@@ -149,14 +149,15 @@ jobs:
 
   configure-infrastructure:
     docker:
-      - image: amazon/aws-cli
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["f6:4a:e4:4b:14:e4:82:cc:c8:a9:cd:37:96:63:d2:24"]
+          fingerprints:
+            - "f6:4a:e4:4b:14:e4:82:cc:c8:a9:cd:37:96:63:d2:24"
       - run:
           command: |
-            yum install -y tar gzip ansible && amazon-linux-extras install ansible2 -y
+            apk add --update ansible
       - attach_workspace:
           at: .circleci/ansible
       - run:
@@ -165,6 +166,7 @@ jobs:
       - run:
           name: Run Playbook
           command: |
+            export ANSIBLE_HOST_KEY_CHECKING=False \
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
 
 workflows:
