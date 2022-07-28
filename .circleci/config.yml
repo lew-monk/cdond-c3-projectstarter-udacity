@@ -184,21 +184,16 @@ jobs:
           name: Send migration results to memstash
           command: |
             cd backend &&
-            ls &&
             if grep -q "has been executed successfully." migrations_dump.txt
              then
-              echo "Migrations ran successfully"
               curl https://kvdb.io/44yV7nvC6KUPwrnUCUfxWQ/migration_${CIRCLE_WORKFLOW_ID:0:7} -d "1" -H "Authorization: Bearer ThisIsMyKey" -k
-            else
-              echo "Migrations failed"
-              curl https://kvdb.io/44yV7nvC6KUPwrnUCUfxWQ/migration_${CIRCLE_WORKFLOW_ID:0:7} -d "0" -H "Authorization: Bearer ThisIsMyKey" -k
             fi
 
 workflows:
   defaults:
     jobs:
       # - build-frontend
-      # - build-backend
+      - build-backend
       # - test-frontend:
       #     requires:
       #       - build-frontend
@@ -211,10 +206,12 @@ workflows:
       # - scan-backend:
       #     requires:
       #       - build-backend
-      # - deploy-infrastructure:
-      #     requires:
-      #       - build-backend
-      # - configure-infrastructure:
-      #     requires:
-      #       - deploy-infrastructure
-      - run-migrations
+      - deploy-infrastructure:
+          requires:
+            - build-backend
+      - configure-infrastructure:
+          requires:
+            - deploy-infrastructure
+      - run-migrations:
+          requires:
+            - configure-infrastructure
