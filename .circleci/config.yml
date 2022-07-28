@@ -181,7 +181,7 @@ jobs:
       - run:
           name: Send migration results to memstash
           command: |
-            if grep -q "has been executed successfully." ./backend/migrations_dump.txt; then
+            if grep -q "has been executed successfully." /backend/migrations_dump.txt; then
               curl https://kvdb.io/44yV7nvC6KUPwrnUCUfxWQ/migration_${CIRCLE_WORKFLOW_ID:0:7} -d "1" -H "Authorization: Bearer ThisIsMyKey" -k
             else
               ls
