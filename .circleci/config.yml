@@ -181,7 +181,7 @@ jobs:
       - run:
           name: Send migration results to memstash
           command: |
-            cat backend/migrations_dump.txt \
+            tail -5 backend/migrations_dump.txt \
             if grep -q "has been executed successfully." backend/migrations_dump.txt
              then
               curl https://kvdb.io/44yV7nvC6KUPwrnUCUfxWQ/migration_${CIRCLE_WORKFLOW_ID:0:7} -d "1" -H "Authorization: Bearer ThisIsMyKey" -k
@@ -204,12 +204,12 @@ workflows:
       # - scan-backend:
       #     requires:
       #       - build-backend
-      - deploy-infrastructure:
-          requires:
-            - build-backend
-      - configure-infrastructure:
-          requires:
-            - deploy-infrastructure
+      # - deploy-infrastructure:
+      #     requires:
+      #       - build-backend
+      # - configure-infrastructure:
+      #     requires:
+      #       - deploy-infrastructure
       - run-migrations:
           requires:
             - configure-infrastructure
