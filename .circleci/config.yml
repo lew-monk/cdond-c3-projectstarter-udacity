@@ -191,7 +191,7 @@ jobs:
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
              then
-              curl https://kvdb.io/44yV7nvC6KUPwrnUCUfxWQ/migration_${CIRCLE_WORKFLOW_ID:0:7} -d "1"  --insecure
+              curl https://kvdb.io/GGM8c1jKg3TiDFovAnzjyD/migration_${CIRCLE_WORKFLOW_ID:0:7} -d "1"  --insecure
              else
               cat ~/project/backend/migrations_dump.txt
               echo "failed"
