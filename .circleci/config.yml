@@ -177,6 +177,10 @@ jobs:
           keys: [backend-build]
       - attach_workspace:
           at: ~/
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/backend
       - run:
           name: Run migrations
           command: |
@@ -192,10 +196,6 @@ jobs:
              then
               curl https://kvdb.io/44yV7nvC6KUPwrnUCUfxWQ/migration_${CIRCLE_WORKFLOW_ID:0:7} -d "1" -H "Authorization: Bearer ThisIsMyKey" -k
             fi
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - project/backend
 
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
