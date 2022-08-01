@@ -195,6 +195,9 @@ jobs:
             if grep -q "has been executed successfully." migrations_dump.txt
              then
               curl https://kvdb.io/44yV7nvC6KUPwrnUCUfxWQ/migration_${CIRCLE_WORKFLOW_ID:0:7} -d "1" -H "Authorization: Bearer ThisIsMyKey" -k
+             else
+              cat migrations_dump.txt
+              echo "failed"
             fi
 
       - destroy-environment:
