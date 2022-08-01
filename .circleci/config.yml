@@ -166,8 +166,7 @@ jobs:
           name: Run Playbook
           command: |
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
-      - destroy-environment:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}
+
   run-migrations:
     docker:
       - image: circleci/node:13.8.0
@@ -194,12 +193,9 @@ jobs:
              then
               curl https://kvdb.io/44yV7nvC6KUPwrnUCUfxWQ/migration_${CIRCLE_WORKFLOW_ID:0:7} -d "1" -H "Authorization: Bearer ThisIsMyKey" -k
              else
-              cat migrations_dump.txt
+              cat ~/project/backend/migrations_dump.txt
               echo "failed"
             fi
-
-      - destroy-environment:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}
 
       - persist_to_workspace:
           root: ~/
