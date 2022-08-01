@@ -210,6 +210,9 @@ jobs:
       - restore_cache:
           keys: [frontend-build]
       - run:
+          name: "Install tar"
+          command: yum install -y tar
+      - run:
           name: "Install Python"
           command: yum install -y python3 python3-pip
       - run:
