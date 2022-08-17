@@ -3,6 +3,17 @@ version: 2.1
 orbs:
   slack: circleci/slack@4.1
 
+executors:
+  node:
+    docker:
+      - image: circleci/node:13.8.0
+  python:
+    docker:
+      - image: python:3.9.0-alpine
+  aws:
+    docker:
+      - image: amazon/aws-cli
+
 commands:
   destroy-environment:
     parameters:
@@ -10,13 +21,24 @@ commands:
         description: >
           Unique identifier.
         type: string
+      when:
+        type: string
     steps:
       - run:
-          name: "Destroy environment"
+          name: Destroy udapeople backend cfn stack
           command: |
-            aws cloudformation delete-stack --stack-name udapeople-backend-<<parameters.id>>
-            aws cloudformation delete-stack --stack-name udapeople-frontend-<<parameters.id>>
-          when: on_fail
+            aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.id >>
+          environment:
+            TERM: xterm-256color
+          when: << parameters.when >>
+      - run:
+          name: Destroy udapeople frontend cfn stack and S3 bucket
+          command: |
+            aws s3 rm s3://udapeople-<< parameters.id >> --recursive
+            aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.id >>
+          environment:
+            TERM: xterm-256color
+          when: << parameters.when >>
 
 jobs:
   build-frontend:
@@ -35,8 +57,7 @@ jobs:
           keys: [frontend-build]
 
   build-backend:
-    docker:
-      - image: circleci/node:13.8.0
+    executor: node
     steps:
       - checkout
       - restore_cache:
@@ -88,10 +109,8 @@ jobs:
           keys: [frontend-build]
       - run:
           name: Scan Frontend
-          command: cd frontend &&
-            npm install &&
-            npm audit fix --force &&
-            npm audit --audit-level=critical
+          working_directory: ./frontend
+          command: npm audit --audit-level=critical
 
   scan-backend:
     docker:
@@ -102,14 +121,11 @@ jobs:
           keys: [backend-build]
       - run:
           name: Scan backend
-          command: cd backend &&
-            npm install &&
-            npm audit fix --force &&
-            npm audit --audit-level=critical
+          working_directory: ./backend
+          command: npm audit --audit-level=critical
 
   deploy-infrastructure:
-    docker:
-      - image: amazon/aws-cli
+    executor: aws
     steps:
       - checkout
       - run:
@@ -122,7 +138,7 @@ jobs:
             --template-file .circleci/files/backend.yml \
             --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
-            --tags project=udapeople-backend-test
+            --tags project=udapeople-backend-test-${CIRCLE_WORKFLOW_ID:0:7}
       - run:
           name: Ensure frontend Infra Exists
           command: |
@@ -138,7 +154,7 @@ jobs:
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].[PublicIpAddress]' \
               --output text \
-              --filters "Name=tag:project,Values=udapeople-backend-test" \
+              --filters "Name=tag:project,Values=udapeople-backend-test-${CIRCLE_WORKFLOW_ID:0:7}" \
               >> .circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: .circleci/ansible
@@ -146,43 +162,57 @@ jobs:
             - inventory.txt
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
+          when: on_fail
 
   configure-infrastructure:
-    docker:
-      - image: python:3.7-alpine3.16
+    executor: python
     steps:
       - checkout
       - add_ssh_keys:
           fingerprints: ["f6:4a:e4:4b:14:e4:82:cc:c8:a9:cd:37:96:63:d2:24"]
       - run:
+          name: Install dependencies
+          working_directory: ./.circleci/ansible
           command: |
             apk add --update ansible
+            ansible --version
+
       - attach_workspace:
-          at: .circleci/ansible
+          at: .
       - run:
-          name: "Echo contents of inventory.txt"
-          command: cat .circleci/ansible/inventory.txt
-      - run:
-          name: Run Playbook
+          name: Configure server
+          working_directory: ./.circleci/ansible
           command: |
-            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
+            pwd &&
+            ls -la
+            cat inventory
+            ansible-playbook -i inventory configure-server.yaml
+      - destroy_environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+          when: on_fail
 
   run-migrations:
-    docker:
-      - image: circleci/node:13.8.0
+    executor: node
     steps:
       - checkout
       - restore_cache:
           keys: [backend-build]
       - attach_workspace:
-          at: ~/
+          at: .
+      - run:
+          name: Install AWS CLI dependencies
+          working_directory: /tmp
+          command: |
+            sudo apt-get update && sudo apt-get install -yy less
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
       - run:
           name: Run migrations
+          working_directory: ./backend
           command: |
-            cd backend &&
-             npm install &&
-             npm run migrations > migrations_dump.txt
-             cat migrations_dump.txt
+            npm run migrations > migration_status
+
       - run:
           name: Send migration results to memstash
           command: |
@@ -230,7 +260,7 @@ jobs:
             export BACKEND_URL=$(aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].[PublicIpAddress]' \
               --output text \
-              --filters "Name=tag:project,Values=udapeople-backend-test" \
+              --filters "Name=tag:project,Values=udapeople-udapeople-backend-test-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region us-West-2)
             export API_URL="http://${BACKEND_URL}:3030"
             echo "API_URL: ${API_URL}"
@@ -273,6 +303,6 @@ workflows:
       - run-migrations:
           requires:
             - configure-infrastructure
-      - deploy-frontend:
-          requires:
-            - run-migrations
+      # - deploy-frontend:
+      #     requires:
+      #       - run-migrations
