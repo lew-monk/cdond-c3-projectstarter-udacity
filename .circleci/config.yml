@@ -223,11 +223,11 @@ jobs:
           name: Send migration results to memstash
           working_directory: ./backend
           command: |
-            if grep -q "has been executed successfully." migrations_status.txt
+            if grep -q "has been executed successfully." migration_status.txt
              then
               curl https://kvdb.io/GGM8c1jKg3TiDFovAnzjyD/migration_${CIRCLE_WORKFLOW_ID:0:7} -d "1"  --insecure
              else
-              cat migrations_status.txt
+              cat migration_status.txt
               echo "failed"
             fi
 
