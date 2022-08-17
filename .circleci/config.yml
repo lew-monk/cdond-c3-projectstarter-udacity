@@ -128,14 +128,16 @@ jobs:
     executor: aws
     steps:
       - checkout
+
       - run:
           name: Install tar and gzip
           command: yum install -y tar gzip
       - run:
           name: Ensure backend Infra Exists
+          working_directory: .circleci/files
           command: |
             aws cloudformation deploy \
-            --template-file .circleci/files/backend.yml \
+            --template-file backend.yml \
             --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
             --tags project=udapeople-backend-test-${CIRCLE_WORKFLOW_ID:0:7}
@@ -150,16 +152,18 @@ jobs:
       - run: mkdir -p workspace
       - run:
           name: Add back-end ip to ansible inventory
+          working_directory: ./.circleci/ansible
           command: |
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].[PublicIpAddress]' \
               --output text \
               --filters "Name=tag:project,Values=udapeople-backend-test-${CIRCLE_WORKFLOW_ID:0:7}" \
-              >> .circleci/ansible/inventory.txt
+              >> inventory.txt
+            cat inventory.txt
       - persist_to_workspace:
-          root: .circleci/ansible
+          root: .
           paths:
-            - inventory.txt
+            - .circleci/ansible/inventory.txt
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
           when: on_fail
@@ -176,6 +180,8 @@ jobs:
           command: |
             apk add --update ansible
             ansible --version
+            pip install awscli
+            aws --version
 
       - attach_workspace:
           at: .
@@ -186,7 +192,7 @@ jobs:
             pwd &&
             ls -la
             cat inventory.txt
-            ansible-playbook -i inventory configure-server.yaml
+            ansible-playbook -i inventory configure-server.yml
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
           when: on_fail
