@@ -221,6 +221,7 @@ jobs:
 
       - run:
           name: Send migration results to memstash
+          working_directory: ./backend
           command: |
             if grep -q "has been executed successfully." migrations_status.txt
              then
@@ -229,10 +230,6 @@ jobs:
               cat migrations_status.txt
               echo "failed"
             fi
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - project/backend
 
   deploy-frontend:
     docker:
