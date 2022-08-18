@@ -278,11 +278,37 @@ jobs:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
           when: on_fail
 
+  deploy-backend:
+    executor: python
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - add_ssh_keys:
+          fingerprints: ["f6:4a:e4:4b:14:e4:82:cc:c8:a9:cd:37:96:63:d2:24"]
+      - run:
+          name: Install dependancies
+          working_directory: ./tmp
+          command: |
+            apk add --update ansible curl rsync openssh nodejs npm
+            ansible --version
+            pip install awscli
+            aws --version
+      - run:
+          name: Deploy backend
+          working_directory: ./.circleci/ansible
+          command: |
+            cat inventory.txt
+            ansible-playbook -i inventory.txt backend.yml -vv
+
+      - destroy-environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+          when: on_fail
 workflows:
   defaults:
     jobs:
-      - build-frontend
-      - build-backend
+      # - build-frontend
+      # - build-backend
       # - test-frontend:
       #     requires:
       #       - build-frontend
@@ -295,15 +321,18 @@ workflows:
       # - scan-backend:
       #     requires:
       #       - build-backend
-      - deploy-infrastructure:
-          requires:
-            - build-backend
-      - configure-infrastructure:
-          requires:
-            - deploy-infrastructure
-      - run-migrations:
-          requires:
-            - configure-infrastructure
-      - deploy-frontend:
-          requires:
-            - run-migrations
+      # - deploy-infrastructure:
+      #     requires:
+      #       - build-backend
+      # - configure-infrastructure:
+      #     requires:
+      #       - deploy-infrastructure
+      # - run-migrations:
+      #     requires:
+      #       - configure-infrastructure
+      # - deploy-frontend:
+      #     requires:
+      #       - run-migrations
+      - deploy-backend
+        # requires:
+        #   - run-migrations
