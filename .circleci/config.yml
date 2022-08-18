@@ -269,11 +269,10 @@ jobs:
           root: .
           paths:
             - frontend/dist
-      - destroy_environment:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}
-          when: on_fail
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
+          when: on_fail
+
 workflows:
   defaults:
     jobs:
