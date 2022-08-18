@@ -232,33 +232,24 @@ jobs:
             fi
 
   deploy-frontend:
-    docker:
-      - image: amazon/aws-cli
+    executor: node
     steps:
       - checkout
-      - add_ssh_keys:
-          fingerprints: ["f6:4a:e4:4b:14:e4:82:cc:c8:a9:cd:37:96:63:d2:24"]
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install AWS CLI dependencies
+          working_directory: /tmp
+          command: |
+            sudo apt-get update && sudo apt-get install -yy less
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
       - restore_cache:
           keys: [frontend-build]
       - run:
-          name: "Install tar and gzip"
-          command: yum install -y tar gzip
-      - attach_workspace:
-          at: ~/
-      - run:
-          name: "Install Python"
-          command: yum install -y python3 python3-pip
-      - run:
-          name: "Install Ansible"
-          command: pip3 install ansible
-      - run:
-          name: "Install Node and Npm"
-          command: |
-            yum install -y gcc-c++ make
-            curl -sL https://rpm.nodesource.com/setup_14.x | bash - 
-            yum install -y nodejs
-      - run:
           name: "Get backend url"
+          working_directory: ./frontend
           command: |
             export BACKEND_URL=$(aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].[PublicIpAddress]' \
@@ -267,17 +258,20 @@ jobs:
               --region us-West-2)
             export API_URL="http://${BACKEND_URL}:3030"
             echo "API_URL: ${API_URL}"
-            echo API_URL=${API_URL} >> frontend/.env
-            cat frontend/.env
+            npm run build
       - run:
           name: "Install frontend dependencies"
+          working_directory: ./frontend
           command: |
-            cd frontend
-            npm install
-            npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-
+            aws s3 cp ./dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+      - persist_to_workspace:
+          root: .
+          paths:
+            - frontend/dist
+      - destroy_environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+          when: on_fail
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
 workflows:
