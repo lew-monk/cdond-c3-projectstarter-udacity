@@ -2,6 +2,9 @@
 - name: "show remote environment"
   shell: env
 
+- name: "Show files in the current directory"
+  shell: ls home -la
+
 - name: "copy backend binaries"
   become: true
   synchronize:
