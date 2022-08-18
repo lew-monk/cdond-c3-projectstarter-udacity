@@ -160,6 +160,16 @@ jobs:
               --filters "Name=tag:project,Values=udapeople-backend-test-${CIRCLE_WORKFLOW_ID:0:7}" \
               >> inventory.txt
             cat inventory.txt
+      - run:
+          name: Save backend URL in memstash
+          command: |
+            BACKEND_IP=$(aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --output text)
+
+            curl https://kvdb.io/GGM8c1jKg3TiDFovAnzjyD/Backend_API_${CIRCLE_WORKFLOW_ID:0:7} -d "http://$BACKEND_IP:3030"  --insecure
+
       - persist_to_workspace:
           root: .
           paths:
@@ -275,7 +285,7 @@ jobs:
 workflows:
   defaults:
     jobs:
-      - build-frontend
+      # - build-frontend
       - build-backend
       # - test-frontend:
       #     requires:
@@ -292,12 +302,12 @@ workflows:
       - deploy-infrastructure:
           requires:
             - build-backend
-      - configure-infrastructure:
-          requires:
-            - deploy-infrastructure
-      - run-migrations:
-          requires:
-            - configure-infrastructure
-      - deploy-frontend:
-          requires:
-            - run-migrations
+      # - configure-infrastructure:
+      #     requires:
+      #       - deploy-infrastructure
+      # - run-migrations:
+      #     requires:
+      #       - configure-infrastructure
+      # - deploy-frontend:
+      #     requires:
+      #       - run-migrations
