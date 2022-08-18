@@ -299,7 +299,7 @@ jobs:
           working_directory: ./.circleci/ansible
           command: |
             cat inventory.txt
-            ansible-playbook -i inventory.txt backend.yml -vv
+            ansible-playbook -i inventory.txt deploy-backend.yml
 
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
