@@ -254,7 +254,7 @@ jobs:
             export BACKEND_URL=$(aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].[PublicIpAddress]' \
               --output text \
-              --filters "Name=tag:project,Values=udapeople-udapeople-backend-test-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --filters "Name=tag:project,Values=udapeople-backend-test-${CIRCLE_WORKFLOW_ID:0:7}" \
               --region us-West-2)
             export API_URL="http://${BACKEND_URL}:3030"
             echo "API_URL: ${API_URL}"
