@@ -184,17 +184,14 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints: ["f6:4a:e4:4b:14:e4:82:cc:c8:a9:cd:37:96:63:d2:24"]
+      - attach_workspace:
+          at: .
       - run:
           name: Install dependencies
           working_directory: ./.circleci/ansible
           command: |
             apk add --update ansible
             ansible --version
-            pip install awscli
-            aws --version
-
-      - attach_workspace:
-          at: .
       - run:
           name: Configure server
           working_directory: ./.circleci/ansible
